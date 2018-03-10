@@ -2,10 +2,9 @@ language: go
 go:
 - 1.8
 before_install:
-- curl -sfLO https://raw.githubusercontent.com/apex/up/master/install.sh
+- curl -sf https://up.apex.sh/install | BINDIR=./bin sh
 install:
-- sh install.sh -b ./bin
-- "./bin/up version"
+- ./bin/up version
 deploy:
 - provider: script
   script: cd api/index && ./bin/up
