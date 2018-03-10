@@ -5,6 +5,7 @@ before_install:
 - curl -sf https://up.apex.sh/install | BINDIR=./bin sh
 install:
 - ./bin/up version
+- go get ./...
 deploy:
 - provider: script
   script: cd api/index && ./bin/up
