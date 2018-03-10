@@ -1,0 +1,15 @@
+{
+  "name": "infra",
+  "profile": "contributorninja-infra",
+  "regions": [
+    "us-east-1"
+  ],
+  "error_pages": {
+    "disable": true
+  },
+  "stages": {
+    "production": {
+      "domain": "apiv2-index.contributor.ninja"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "crawler",
+  "profile": "contributorninja-infra",
+  "regions": [
+    "us-east-1"
+  ],
+  "error_pages": {
+    "disable": true
+  }
+}
