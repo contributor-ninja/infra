@@ -1,2 +1,1 @@
-cd api/crawler && ../../bin/up
-cd api/index && ../../bin/up
+cd $1 && ../../bin/up

@@ -8,7 +8,10 @@ install:
 - go get ./...
 deploy:
 - provider: script
-  script: bash scripts/deploy.sh
+  script: bash scripts/deploy.sh api/crawler
+  skip_cleanup: true
+- provider: script
+  script: bash scripts/deploy.sh api/index
   skip_cleanup: true
 env:
   global:
