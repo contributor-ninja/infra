@@ -1,0 +1,22 @@
+language: go
+go:
+- 1.8
+before_install:
+- curl -sfLO https://raw.githubusercontent.com/apex/up/master/install.sh
+install:
+- sh install.sh -b ./bin
+- "./bin/up version"
+deploy:
+- provider: script
+  script: cd api/index && ./bin/up
+  skip_cleanup: true
+- provider: script
+  script: cd api/crawler && ./bin/up
+  skip_cleanup: true
+after_success:
+- cd api/crawler && ./bin/up url
+- cd api/index && ./bin/up url
+env:
+  global:
+  - secure: GRUJrFHcpREufYKEm5eXAQb72NdyG9AOcs7kel7pw5Uru4/TmduGzx2jYjtIfVHLkZzB7lx7hkmEdy4NEMuIU+93Zn71HmPvLBqJwy8IMk75KgdnHbIw8CNwA+UFrxgls+7IGfEMbhu/Bw3bt2wjUISMIHIYwDbCP2M0tQR4PVKfUxIRojwzJkD+kKzTRkBwfWU7H1ALpNi8sicT8dKfOf482UJG9Csq18NCXtpFyi+8EcEqAm+QQk+z1VFVMOgIk0nHrdKoVKbvX7lb6rFesH+dw8WWqieEcBGxVzwWittVrIyody6G8GO1TaCPKgu897wW1/+JPFiTYnKcGhPDF6o4Pr8uXDhbA6QXKInGRIeVcBEtYr+yotuhItCYgmuyCLOOTTjDQPAJiFXLwwN3t7XzMzLFOpI4Q/PbmX2QK0nmLX79OOa5L/2xs6o6ZltNsxWIAlYhSmMZufOB4E0Zp992tFEHPCkh0QdNAMIsaAYhXsw2XmXUqamxjCz6pROK/Ksxt3aSF0mjv1qt0XFdkG5/t9HiJ1TGkI3iC7CI/2U0+bzey2xRKYFcT95TabibOLwzwpN5Zhhfih2JAyUSGObIT1nKYkQnetfR8ZMR/p2lJJtC7RmcjTOzBgo9YgLgSmgZXZ8U/3GnVXzNliCJ3yyEIC0svlHckH4eJ1ddiaI=
+  - secure: jYPA38CBtqhHhGdUSxvCPJz/yIfkiBavMKuldEZMVpMZXPsyMywPDNRa9gd3S7zHez5arKplLX93NaoomjrdCZJDSbwAVO160XLcx1nvdlxnDkDs54M6jFhIdbAzfD4KPFpCCyYXw7vU8oXBHYcbhJqZqA76RsK3nkYghbNO6Jk1C2nRKgqKYxNcDW+E5yQSwp9fx5g5qXXj42xoZnYPL5aOV7/aat57cQ7ulbGMpjoQ6wfgq2VoHxJ+akmXNsRuGAdnDB69ixigi42xMDy4xSNZZX+OIMpRwSN7ywhtqvHl+Yu13fePgc8ktsUvohJh5kMbO93lttIF8nsEtNnAT510kC1SRPh8oCD6NsaZKu9B1t9QpWtAwzhBMrdMeVfXf5h0iSstLIzx/x47cvM1liKUqYUotoIlHRdY6fKSZVqIs5r2IA6ovAPe7F70AxIWZfq4ZxRy8guwuwW9SHwmq2JN5K7vYMy9a7RFBcJDHGLko3z0zxnnrww9Useo46OriwIT/QpP//bGWrsg+wjXXBObAx9N/lWRAdbRTD+kUTJTumopBeL15CWlgbjUY2TYaYkCdvfGtZpJl8QEGWun01T/N0ZaD4A8PS7mDIkQ8EpFSK5aY3qg9yzpgf14EabkJG4m0yigEr/K7oDRKRkIGZotXprpF2aZoqS/BW5SEUs=

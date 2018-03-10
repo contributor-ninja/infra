@@ -1,1 +1,5 @@
 .env
+api/crawler/crawler
+api/crawler/server
+api/index/index
+api/index/server
