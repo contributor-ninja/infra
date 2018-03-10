@@ -1,1 +1,1 @@
-cd $1 && ../../bin/up deploy production
+cd $1 && ../../up deploy production

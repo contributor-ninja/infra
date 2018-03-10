@@ -2,9 +2,9 @@ language: go
 go:
 - 1.8
 before_install:
-- curl -sf https://up.apex.sh/install | BINDIR=./bin sh
+  - wget https://s3.amazonaws.com/up-dlmirror/up
 install:
-- ./bin/up version
+- ./up version
 - go get ./...
 deploy:
 - provider: script
