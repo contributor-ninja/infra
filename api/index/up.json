@@ -7,9 +7,20 @@
   "error_pages": {
     "disable": true
   },
+  "proxy": {
+    "attempts": 1
+  },
   "stages": {
     "production": {
       "domain": "apiv2-index.contributor.ninja"
+    },
+    "staging": {
+      "domain": "staging-apiv2-index.contributor.ninja"
     }
+  },
+  "cors": {
+    "allowed_origins": ["https://staging-apiv2-index.contributor.ninja"],
+    "allowed_methods": ["HEAD", "GET", "POST", "PUT", "OPTIONS"],
+    "allow_credentials": true
   }
 }

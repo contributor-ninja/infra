@@ -6,5 +6,8 @@
   ],
   "error_pages": {
     "disable": true
+  },
+  "proxy": {
+    "attempts": 1
   }
 }

@@ -16,3 +16,4 @@ Environment variables:
 
 - `DB_AWS_ACCESS_KEY_ID`
 - `DB_AWS_ACCESS_KEY`
+- `GRAPHQL_CORS_ORIGIN`

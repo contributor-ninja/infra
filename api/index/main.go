@@ -9,6 +9,7 @@ import (
 	loghandlers "github.com/apex/log/handlers/json"
 	awsdynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	muxhandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	gographql "github.com/graph-gophers/graphql-go"
 	"github.com/graph-gophers/graphql-go/relay"
@@ -20,7 +21,8 @@ import (
 )
 
 var (
-	port = os.Getenv("PORT")
+	port       = os.Getenv("PORT")
+	corsOrigin = os.Getenv("GRAPHQL_CORS_ORIGIN")
 
 	page = []byte(`
 <!DOCTYPE html>
@@ -101,7 +103,12 @@ func main() {
 		w.Write(page)
 	}))
 
-	if err := http.ListenAndServe(addr, r); err != nil {
+	originsOk := muxhandlers.AllowedOrigins([]string{corsOrigin})
+	methodsOk := muxhandlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+
+	routerWithCors := muxhandlers.CORS(originsOk, methodsOk)(r)
+
+	if err := http.ListenAndServe(addr, routerWithCors); err != nil {
 		log.WithError(err).Fatal("error listening")
 	}
 }
