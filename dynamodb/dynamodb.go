@@ -2,6 +2,7 @@ package dynamodb
 
 import (
 	"os"
+	"strconv"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -47,5 +48,32 @@ func MakeFindQuery(p protocol.GitHubProject) awsdynamodb.QueryInput {
 				},
 			},
 		},
+	}
+}
+
+func MakeBatchGetItemByIssueIndex(p protocol.IssueIdIndex) awsdynamodb.BatchGetItemInput {
+	keysArray := make([]map[string]*awsdynamodb.AttributeValue, 0)
+
+	for _, id := range p.Ids {
+		keys := map[string]*awsdynamodb.AttributeValue{
+			"id": {
+				N: aws.String(strconv.Itoa(id)),
+			},
+		}
+
+		keysArray = append(keysArray, keys)
+	}
+
+	issueTableName := *protocol.IssueTable
+
+	requestItems := make(map[string]*awsdynamodb.KeysAndAttributes)
+
+	requestItems[issueTableName] = &awsdynamodb.KeysAndAttributes{
+		ProjectionExpression: aws.String("id,title,body,html_url"),
+		Keys:                 keysArray,
+	}
+
+	return awsdynamodb.BatchGetItemInput{
+		RequestItems: requestItems,
 	}
 }

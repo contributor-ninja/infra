@@ -1,0 +1,43 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Query {
+    dashboard(): [Column]!
+}
+
+type Mutation {
+    addProject(): String
+}
+
+type Column {
+    id: ID!
+    language: Language!
+    issues: [Issue]!
+}
+
+type Language {
+    name: String!
+}
+
+type Issue {
+    title: String!
+    body: String!
+
+    htmlUrl: String!
+
+    project: Project!
+    user: User!
+}
+
+type Project {
+    id: ID!
+    org: String!
+    name: String!
+}
+
+type User {
+	login: String!
+	avatarURL: String!
+}

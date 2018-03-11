@@ -22,5 +22,7 @@ type Issue struct {
 	CreatedAt time.Time `json:"created_at"`
 	HTMLURL   string    `json:"html_url"`
 
+	Project GitHubProject `json:"project"`
+
 	User User `json:"user"`
 }
