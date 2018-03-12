@@ -1,8 +1,13 @@
 package graphql
 
 import (
-	awsdynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
+	"errors"
 
+	"github.com/apex/log"
+	awsdynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+
+	"github.com/contributor-ninja/infra/dynamodb"
 	"github.com/contributor-ninja/infra/protocol"
 )
 
@@ -61,6 +66,50 @@ func (r *Resolver) Dashboard() ([]*columnResolver, error) {
 	return resolvers, nil
 }
 
-func (r *Resolver) AddProject() *string {
-	return nil
+type addGitHubProjectArgs struct {
+	Org  string
+	Name string
+}
+
+func (r *Resolver) AddProject(args addGitHubProjectArgs) (*projectResolver, error) {
+	project := protocol.MakeGitHubProject(args.Org, args.Name)
+
+	query := dynamodb.MakeFindQuery(project)
+	resp, findQueryErr := r.DynamodbClient.Query(&query)
+
+	if findQueryErr != nil {
+		return nil, errors.New("could not find project")
+	}
+
+	if len(resp.Items) > 0 {
+		return nil, errors.New("project already exists")
+	}
+
+	/*
+		Insert new project
+	*/
+	av, err := dynamodbattribute.MarshalMap(project)
+
+	if err != nil {
+		log.WithError(err).Fatal("could not MarshalMap")
+	}
+
+	input := &awsdynamodb.PutItemInput{
+		Item:      av,
+		TableName: protocol.GitHubProjectTable,
+	}
+
+	_, putErr := r.DynamodbClient.PutItem(input)
+
+	if putErr != nil {
+		log.WithError(putErr).Fatal("could not send response")
+	}
+
+	log.
+		WithFields(log.Fields{
+			"id": project.Id,
+		}).
+		Info("added item in index")
+
+	return &projectResolver{project}, nil
 }

@@ -8,7 +8,7 @@ type Query {
 }
 
 type Mutation {
-    addProject(): String
+    addProject(org: String!, name: String!): Project
 }
 
 type Column {

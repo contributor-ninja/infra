@@ -8,7 +8,6 @@ import (
 	"github.com/apex/log"
 	loghandlers "github.com/apex/log/handlers/json"
 	awsdynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	muxhandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	gographql "github.com/graph-gophers/graphql-go"
@@ -17,7 +16,6 @@ import (
 	"github.com/contributor-ninja/infra/api"
 	"github.com/contributor-ninja/infra/dynamodb"
 	"github.com/contributor-ninja/infra/graphql"
-	"github.com/contributor-ninja/infra/protocol"
 )
 
 var (
@@ -93,10 +91,6 @@ func main() {
 
 	r.HandleFunc("/status", handlers.getStatusHandler)
 
-	r.
-		HandleFunc("/repo/{org}/{name}", handlers.putRepoHandler).
-		Methods("PUT")
-
 	r.Handle("/query", &relay.Handler{Schema: schema})
 
 	r.Handle("/graphiql", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -139,63 +133,4 @@ func (h Handlers) getStatusHandler(w http.ResponseWriter, r *http.Request) {
 	if _, err := w.Write(jsonBytes); err != nil {
 		log.WithError(err).Fatal("could not send response")
 	}
-}
-
-func (h Handlers) putRepoHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-
-	if vars["org"] == "" || vars["name"] == "" {
-		log.Fatal("malformed request")
-	}
-
-	/*
-	   Check if project already exists
-	*/
-	predicat := protocol.GitHubProject{
-		Org:  vars["org"],
-		Name: vars["name"],
-	}
-
-	query := dynamodb.MakeFindQuery(predicat)
-	resp, findQueryErr := h.dynamodbClient.Query(&query)
-
-	if findQueryErr != nil {
-		log.WithError(findQueryErr).Fatal("could not find project")
-	}
-
-	if len(resp.Items) > 0 {
-		// Project already exists
-		api.SendResponse(api.Response{"project already exists"}, w)
-		return
-	}
-
-	/*
-		Insert new project
-	*/
-	project := protocol.MakeGitHubProject(vars["org"], vars["name"])
-
-	av, err := dynamodbattribute.MarshalMap(project)
-
-	if err != nil {
-		log.WithError(err).Fatal("could not MarshalMap")
-	}
-
-	input := &awsdynamodb.PutItemInput{
-		Item:      av,
-		TableName: protocol.GitHubProjectTable,
-	}
-
-	_, putErr := h.dynamodbClient.PutItem(input)
-
-	if putErr != nil {
-		log.WithError(putErr).Fatal("could not send response")
-	}
-
-	log.
-		WithFields(log.Fields{
-			"id": project.Id,
-		}).
-		Info("added item in index")
-
-	api.SendResponse(api.Response{"added " + project.Id}, w)
 }
