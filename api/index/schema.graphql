@@ -5,6 +5,7 @@ schema {
 
 type Query {
     dashboard(): [Column]!
+    user(): User
 }
 
 type Mutation {
@@ -24,6 +25,7 @@ type Language {
 type Issue {
     title: String!
     body: String!
+    avatarUrl: String!
 
     htmlUrl: String!
 
@@ -40,4 +42,6 @@ type Project {
 type User {
 	login: String!
 	avatarURL: String!
+
+    isConnected: Boolean!
 }

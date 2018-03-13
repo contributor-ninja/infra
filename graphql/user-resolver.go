@@ -13,3 +13,7 @@ func (r *userResolver) Login() string {
 func (r *userResolver) AvatarUrl() string {
 	return r.s.AvatarURL
 }
+
+func (r *userResolver) IsConnected() bool {
+	return true
+}

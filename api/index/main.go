@@ -8,10 +8,8 @@ import (
 	"github.com/apex/log"
 	loghandlers "github.com/apex/log/handlers/json"
 	awsdynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
-	muxhandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	gographql "github.com/graph-gophers/graphql-go"
-	"github.com/graph-gophers/graphql-go/relay"
 
 	"github.com/contributor-ninja/infra/api"
 	"github.com/contributor-ninja/infra/dynamodb"
@@ -90,19 +88,17 @@ func main() {
 	*/
 
 	r.HandleFunc("/status", handlers.getStatusHandler)
+	r.HandleFunc("/", handlers.getStatusHandler)
 
-	r.Handle("/query", &relay.Handler{Schema: schema})
+	r.Handle("/query", &graphql.GraphQL{Schema: schema})
 
 	r.Handle("/graphiql", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write(page)
 	}))
 
-	originsOk := muxhandlers.AllowedOrigins([]string{corsOrigin})
-	methodsOk := muxhandlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"})
+	r.Use(CORSMiddleware)
 
-	routerWithCors := muxhandlers.CORS(originsOk, methodsOk)(r)
-
-	if err := http.ListenAndServe(addr, routerWithCors); err != nil {
+	if err := http.ListenAndServe(addr, r); err != nil {
 		log.WithError(err).Fatal("error listening")
 	}
 }
@@ -133,4 +129,18 @@ func (h Handlers) getStatusHandler(w http.ResponseWriter, r *http.Request) {
 	if _, err := w.Write(jsonBytes); err != nil {
 		log.WithError(err).Fatal("could not send response")
 	}
+}
+
+/*
+	Middleware
+*/
+
+func CORSMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", corsOrigin)
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		w.Header().Set("Access-Control-Request-Method", "POST, GET, OPTIONS")
+
+		next.ServeHTTP(w, r)
+	})
 }

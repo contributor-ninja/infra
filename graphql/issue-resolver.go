@@ -18,6 +18,10 @@ func (r *issueResolver) HtmlUrl() string {
 	return r.s.HTMLURL
 }
 
+func (r *issueResolver) AvatarUrl() string {
+	return "https://avatars2.githubusercontent.com/u/1253363?s=200"
+}
+
 func (r *issueResolver) Project() *projectResolver {
 	return &projectResolver{r.s.Project}
 }

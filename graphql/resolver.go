@@ -65,7 +65,15 @@ var (
 			},
 		},
 	}
+
+	defaultUser = protocol.User{
+		Login: "xtuc",
+	}
 )
+
+/*
+  Queries
+*/
 
 func (r *Resolver) Dashboard() ([]*columnResolver, error) {
 	resolvers := make([]*columnResolver, 0)
@@ -79,6 +87,14 @@ func (r *Resolver) Dashboard() ([]*columnResolver, error) {
 
 	return resolvers, nil
 }
+
+func (r *Resolver) User() (*userResolver, error) {
+	return &userResolver{defaultUser}, nil
+}
+
+/*
+  Mutations
+*/
 
 type addGitHubProjectArgs struct {
 	Org  string
