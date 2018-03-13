@@ -8,6 +8,7 @@ before_install:
 install:
 - ./up version
 - go get ./...
+before_deploy:
 # create config, sorry TJ <3
 - cat project.json.tpl | envsubst > project.json
 - cat api/index/up.json.tpl | envsubst > api/index/up.json
