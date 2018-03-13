@@ -2,13 +2,27 @@ package graphql
 
 import (
 	"errors"
+	"os"
 
+	"github.com/apex/invoke"
 	"github.com/apex/log"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
 	awsdynamodb "github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/aws/aws-sdk-go/service/lambda"
 
 	"github.com/contributor-ninja/infra/dynamodb"
 	"github.com/contributor-ninja/infra/protocol"
+)
+
+var (
+	invokeRegion = "us-east-1"
+
+	id     = os.Getenv("DB_AWS_ACCESS_KEY_ID")
+	secret = os.Getenv("DB_AWS_ACCESS_KEY")
+	token  = ""
 )
 
 type Resolver struct {
@@ -110,6 +124,24 @@ func (r *Resolver) AddProject(args addGitHubProjectArgs) (*projectResolver, erro
 			"id": project.Id,
 		}).
 		Info("added item in index")
+
+	/*
+		Submit the indexing job
+	*/
+	creds := credentials.NewStaticCredentials(id, secret, token)
+
+	client := lambda.New(session.New(&aws.Config{
+		Region:      aws.String(invokeRegion),
+		Credentials: creds,
+	}))
+
+	invokeErr := invoke.InvokeAsync(client, "crawler_crawler", project)
+
+	if invokeErr != nil {
+		log.WithError(invokeErr).Fatal("could not invoke crawler")
+	}
+
+	log.Info("crawler InvokeAsync")
 
 	return &projectResolver{project}, nil
 }

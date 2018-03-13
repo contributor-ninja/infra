@@ -1,0 +1,8 @@
+{
+  "name": "crawler",
+  "description": "",
+  "memory": 128,
+  "timeout": 5,
+  "role": "arn:aws:iam::161663720085:role/crawler_lambda_function",
+  "environment": {}
+}

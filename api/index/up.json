@@ -19,7 +19,7 @@
     }
   },
   "cors": {
-    "allowed_origins": ["https://staging-apiv2-index.contributor.ninja"],
+    "allowed_origins": ["https://staging-apiv2-index.contributor.ninja", "http://localhost:3000/"],
     "allowed_methods": ["HEAD", "GET", "POST", "PUT", "OPTIONS"],
     "allow_credentials": true
   }

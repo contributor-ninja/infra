@@ -3,13 +3,14 @@ go:
 - 1.8
 before_install:
   - wget https://s3.amazonaws.com/up-dlmirror/up
-  - chmod +x up
+  - wget https://s3.amazonaws.com/up-dlmirror/apex
+  - chmod +x up apex
 install:
 - ./up version
 - go get ./...
 deploy:
 - provider: script
-  script: bash scripts/deploy.sh api/crawler
+  script: ./apex deploy
   skip_cleanup: true
   on:
     branch: master
