@@ -8,6 +8,9 @@ before_install:
 install:
 - ./up version
 - go get ./...
+# create config, sorry TJ <3
+- cat project.json.tpl | envsubst > project.json
+- cat api/index/up.json.tpl | envsubst > api/index/up.json
 deploy:
 - provider: script
   script: ./apex deploy

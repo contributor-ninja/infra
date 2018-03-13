@@ -3,3 +3,5 @@ api/crawler/crawler
 api/crawler/server
 api/index/index
 api/index/server
+project.json
+api/index/up.json

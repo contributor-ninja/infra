@@ -19,8 +19,17 @@
     }
   },
   "cors": {
-    "allowed_origins": ["https://staging-apiv2-index.contributor.ninja", "http://localhost:3000/"],
+    "allowed_origins": [
+      "https://apiv2-index.contributor.ninja",
+      "https://staging-apiv2-index.contributor.ninja",
+      "http://localhost:3000"
+    ],
     "allowed_methods": ["HEAD", "GET", "POST", "PUT", "OPTIONS"],
     "allow_credentials": true
+  },
+  "environment": {
+    "DB_AWS_ACCESS_KEY_ID": "${DB_AWS_ACCESS_KEY_ID}",
+    "DB_AWS_ACCESS_KEY": "${DB_AWS_ACCESS_KEY}",
+    "GRAPHQL_CORS_ORIGIN": "https://apiv2-index.contributor.ninja"
   }
 }
