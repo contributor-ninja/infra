@@ -30,6 +30,6 @@
   "environment": {
     "DB_AWS_ACCESS_KEY_ID": "${DB_AWS_ACCESS_KEY_ID}",
     "DB_AWS_ACCESS_KEY": "${DB_AWS_ACCESS_KEY}",
-    "GRAPHQL_CORS_ORIGIN": "https://apiv2-index.contributor.ninja"
+    "GRAPHQL_CORS_ORIGIN": "https://contributor.ninja"
   }
 }
