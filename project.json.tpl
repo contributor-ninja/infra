@@ -7,6 +7,6 @@
   "environment": {
     "DB_AWS_ACCESS_KEY_ID": "${DB_AWS_ACCESS_KEY_ID}",
     "DB_AWS_ACCESS_KEY": "${DB_AWS_ACCESS_KEY}",
-    "GITHUB_TOKEN": "${GITHUB_TOKEN}",
+    "GITHUB_TOKEN": "${GITHUB_TOKEN}"
   }
 }
