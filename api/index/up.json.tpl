@@ -25,7 +25,8 @@
       "http://localhost:3000"
     ],
     "allowed_methods": ["HEAD", "GET", "POST", "PUT", "OPTIONS"],
-    "allow_credentials": true
+    "allow_credentials": true,
+    "allowed_headers": ["*"]
   },
   "environment": {
     "DB_AWS_ACCESS_KEY_ID": "${DB_AWS_ACCESS_KEY_ID}",
