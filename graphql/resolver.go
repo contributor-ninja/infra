@@ -97,12 +97,20 @@ func (r *Resolver) User() (*userResolver, error) {
 */
 
 type addGitHubProjectArgs struct {
-	Org  string
-	Name string
+	Org      string
+	Name     string
+	Labels   *[]*string
+	Language string
 }
 
 func (r *Resolver) AddProject(args addGitHubProjectArgs) (*projectResolver, error) {
 	project := protocol.MakeGitHubProject(args.Org, args.Name)
+
+	for _, label := range *args.Labels {
+		project.Labels = append(project.Labels, *label)
+	}
+
+	project.Language = args.Language
 
 	query := dynamodb.MakeFindQuery(project)
 	resp, findQueryErr := r.DynamodbClient.Query(&query)

@@ -9,7 +9,7 @@ type Query {
 }
 
 type Mutation {
-    addProject(org: String!, name: String!): Project
+    addProject(org: String!, name: String!, language: LanguageEnum!, labels: [String]): Project
 }
 
 type Column {
@@ -19,7 +19,7 @@ type Column {
 }
 
 type Language {
-    name: String!
+    name: LanguageEnum!
 }
 
 type Issue {
@@ -45,3 +45,11 @@ type User {
 
     isConnected: Boolean!
 }
+
+enum LanguageEnum {
+  js
+  php
+  html
+  ruby
+}
+
