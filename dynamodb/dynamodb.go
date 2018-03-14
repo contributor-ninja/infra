@@ -4,6 +4,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/apex/log"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -17,6 +18,8 @@ var (
 	id     = os.Getenv("DB_AWS_ACCESS_KEY_ID")
 	secret = os.Getenv("DB_AWS_ACCESS_KEY")
 	token  = ""
+
+	maxIssuesPerCol = 30
 )
 
 func NewClient() (*awsdynamodb.DynamoDB, error) {
@@ -55,6 +58,7 @@ func MakeBatchGetItemByIssueIndex(p protocol.IssueIdIndex) awsdynamodb.BatchGetI
 	keysArray := make([]map[string]*awsdynamodb.AttributeValue, 0)
 
 	for _, id := range p.Ids {
+
 		keys := map[string]*awsdynamodb.AttributeValue{
 			"id": {
 				N: aws.String(strconv.Itoa(id)),
@@ -62,6 +66,11 @@ func MakeBatchGetItemByIssueIndex(p protocol.IssueIdIndex) awsdynamodb.BatchGetI
 		}
 
 		keysArray = append(keysArray, keys)
+
+		if len(keysArray) > maxIssuesPerCol {
+			log.Info("more than " + strconv.Itoa(maxIssuesPerCol) + " elements in the batch, truncating")
+			break
+		}
 	}
 
 	issueTableName := *protocol.IssueTable
@@ -75,5 +84,44 @@ func MakeBatchGetItemByIssueIndex(p protocol.IssueIdIndex) awsdynamodb.BatchGetI
 
 	return awsdynamodb.BatchGetItemInput{
 		RequestItems: requestItems,
+	}
+}
+
+func MakeGetIssueIdIndexQuery(name string) awsdynamodb.QueryInput {
+	return awsdynamodb.QueryInput{
+		TableName: protocol.IssueIdIndexTable,
+
+		KeyConditions: map[string]*awsdynamodb.Condition{
+			"name": {
+				ComparisonOperator: aws.String("EQ"),
+				AttributeValueList: []*awsdynamodb.AttributeValue{
+					{
+						S: aws.String(name),
+					},
+				},
+			},
+		},
+	}
+}
+
+func MakePutItemIssueIdIndex(p protocol.IssueIdIndex) awsdynamodb.PutItemInput {
+
+	idNS := make([]*string, 0)
+
+	for _, id := range p.Ids {
+		idNS = append(idNS, aws.String(strconv.Itoa(id)))
+	}
+
+	return awsdynamodb.PutItemInput{
+		TableName: protocol.IssueIdIndexTable,
+
+		Item: map[string]*awsdynamodb.AttributeValue{
+			"name": &awsdynamodb.AttributeValue{
+				S: aws.String(p.Name),
+			},
+			"ids": &awsdynamodb.AttributeValue{
+				NS: idNS,
+			},
+		},
 	}
 }

@@ -3,6 +3,7 @@ package graphql
 import (
 	"errors"
 	"os"
+	"strconv"
 
 	"github.com/apex/invoke"
 	"github.com/apex/log"
@@ -30,42 +31,6 @@ type Resolver struct {
 }
 
 var (
-	defaultDashboard = protocol.Dashboard{
-		Columns: []protocol.Column{
-			{
-				Id:       "default-php",
-				Language: protocol.Language{"php"},
-				IssueIdIndex: protocol.IssueIdIndex{
-					Ids: []int{291963812},
-				},
-			},
-
-			{
-				Id:       "default-js",
-				Language: protocol.Language{"js"},
-				IssueIdIndex: protocol.IssueIdIndex{
-					Ids: []int{294631994, 270481545, 295238273},
-				},
-			},
-
-			{
-				Id:       "default-html",
-				Language: protocol.Language{"html"},
-				IssueIdIndex: protocol.IssueIdIndex{
-					Ids: []int{301986252, 270481580},
-				},
-			},
-
-			{
-				Id:       "default-ruby",
-				Language: protocol.Language{"ruby"},
-				IssueIdIndex: protocol.IssueIdIndex{
-					Ids: []int{304049912},
-				},
-			},
-		},
-	}
-
 	defaultUser = protocol.User{
 		Login: "xtuc",
 	}
@@ -78,7 +43,46 @@ var (
 func (r *Resolver) Dashboard() ([]*columnResolver, error) {
 	resolvers := make([]*columnResolver, 0)
 
-	for _, col := range defaultDashboard.Columns {
+	for _, col := range protocol.DefaultDashboard.Columns {
+
+		/*
+			Fetch and decode IssueIdIndex for each Column
+		*/
+		query := dynamodb.MakeGetIssueIdIndexQuery(col.Id)
+		resp, findQueryErr := r.DynamodbClient.Query(&query)
+
+		if findQueryErr != nil {
+			log.WithError(findQueryErr).Fatal("could not fetch IssueIdIndex")
+		}
+
+		if len(resp.Items) == 0 {
+			log.
+				WithField("id", col.Id).
+				Info("IssueIdIndex not found for Column")
+
+			continue
+		}
+
+		issueIdIndex := &protocol.IssueIdIndex{
+			Name: col.Id,
+			Ids:  make([]int, 0),
+		}
+
+		idsValueAtribute := *resp.Items[0]["ids"]
+
+		for _, str := range idsValueAtribute.NS {
+			intid, convErr := strconv.Atoi(*str)
+
+			if convErr != nil {
+				log.WithError(convErr).Fatal("could not decode items")
+			}
+
+			issueIdIndex.Ids = append(issueIdIndex.Ids, intid)
+
+		}
+
+		col.IssueIdIndex = issueIdIndex
+
 		resolvers = append(resolvers, &columnResolver{
 			s:              col,
 			dynamodbClient: r.DynamodbClient,

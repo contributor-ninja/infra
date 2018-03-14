@@ -19,6 +19,13 @@ const (
 	FETCH_CONCURRENCY = 10
 )
 
+var (
+	defaultphpIssueIdIndex  = protocol.MakeEmptyIssueIdIndex("default-php")
+	defaultjsIssueIdIndex   = protocol.MakeEmptyIssueIdIndex("default-js")
+	defaulthtmlIssueIdIndex = protocol.MakeEmptyIssueIdIndex("default-html")
+	defaultrubyIssueIdIndex = protocol.MakeEmptyIssueIdIndex("default-ruby")
+)
+
 func init() {
 	log.SetHandler(loghandlers.Default)
 }
@@ -117,6 +124,10 @@ func crawlerAll() {
 					}
 
 					log.WithField("title", issue.Title).Info("insered issue")
+
+					if githubProject.Language == "js" {
+						defaultjsIssueIdIndex.Ids = append(defaultjsIssueIdIndex.Ids, issue.Id)
+					}
 				}
 
 			}(item)
@@ -126,4 +137,47 @@ func crawlerAll() {
 	}
 
 	log.Info("processed all projects")
+
+	/*
+	  Update IssueIndices
+	*/
+	inputQuery := dynamodb.MakePutItemIssueIdIndex(defaultphpIssueIdIndex)
+	_, putErr := svc.PutItem(&inputQuery)
+
+	if putErr != nil {
+		log.
+			WithField("name", "default-php").
+			WithError(putErr).
+			Info("put IndexIssueId failed")
+	}
+
+	inputQuery = dynamodb.MakePutItemIssueIdIndex(defaultjsIssueIdIndex)
+	_, putErr = svc.PutItem(&inputQuery)
+
+	if putErr != nil {
+		log.
+			WithField("name", "default-js").
+			WithError(putErr).
+			Info("put IndexIssueId failed")
+	}
+
+	inputQuery = dynamodb.MakePutItemIssueIdIndex(defaulthtmlIssueIdIndex)
+	_, putErr = svc.PutItem(&inputQuery)
+
+	if putErr != nil {
+		log.
+			WithField("name", "default-html").
+			WithError(putErr).
+			Info("put IndexIssueId failed")
+	}
+
+	inputQuery = dynamodb.MakePutItemIssueIdIndex(defaultrubyIssueIdIndex)
+	_, putErr = svc.PutItem(&inputQuery)
+
+	if putErr != nil {
+		log.
+			WithField("name", "default-ruby").
+			WithError(putErr).
+			Info("put IndexIssueId failed")
+	}
 }

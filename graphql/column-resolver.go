@@ -1,6 +1,7 @@
 package graphql
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/apex/log"
@@ -25,10 +26,14 @@ func (r *columnResolver) Language() *languageResolver {
 }
 
 // Fetch the issues given the column name
-func (r *columnResolver) Issues() []*issueResolver {
+func (r *columnResolver) Issues() ([]*issueResolver, error) {
 	resolvers := make([]*issueResolver, 0)
 
-	batchOpts := dynamodb.MakeBatchGetItemByIssueIndex(r.s.IssueIdIndex)
+	if r.s.IssueIdIndex == nil {
+		return resolvers, errors.New("no IssueIdIndex for this column")
+	}
+
+	batchOpts := dynamodb.MakeBatchGetItemByIssueIndex(*r.s.IssueIdIndex)
 
 	resp, getErr := r.dynamodbClient.BatchGetItem(&batchOpts)
 
@@ -38,6 +43,10 @@ func (r *columnResolver) Issues() []*issueResolver {
 
 	issueTableName := *protocol.IssueTable
 	tableResp := resp.Responses[issueTableName]
+
+	if len(tableResp) == 0 {
+		log.WithField("name", r.s.Id).Info("no issues for this column")
+	}
 
 	for _, item := range tableResp {
 		id, err := strconv.Atoi(*item["id"].N)
@@ -68,5 +77,5 @@ func (r *columnResolver) Issues() []*issueResolver {
 		resolvers = append(resolvers, &issueResolver{issue})
 	}
 
-	return resolvers
+	return resolvers, nil
 }
