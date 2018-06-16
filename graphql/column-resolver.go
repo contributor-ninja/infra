@@ -66,11 +66,9 @@ func (r *columnResolver) Issues() ([]*issueResolver, error) {
 				Org:  "test",
 			},
 
-			// FIXME(sven): can't query user, it's a reserved work
-			// TODO(sven): rename user in the model
 			User: protocol.User{
-				Login:     "xtuc",
-				AvatarURL: "foo.png",
+				Login:     *(*item["gh_user"]).M["login"].S,
+				AvatarURL: *(*item["gh_user"]).M["avatar_url"].S,
 			},
 		}
 

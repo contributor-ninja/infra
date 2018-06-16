@@ -25,5 +25,5 @@ type Issue struct {
 
 	Project GitHubProject `json:"project"`
 
-	User User `json:"user"`
+	User User `json:"gh_user"`
 }

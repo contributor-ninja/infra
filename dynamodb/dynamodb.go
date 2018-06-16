@@ -19,7 +19,7 @@ var (
 	secret = os.Getenv("DB_AWS_ACCESS_KEY")
 	token  = ""
 
-	maxIssuesPerCol = 30
+	maxIssuesPerCol = 50
 )
 
 func NewClient() (*awsdynamodb.DynamoDB, error) {
@@ -78,7 +78,7 @@ func MakeBatchGetItemByIssueIndex(p protocol.IssueIdIndex) awsdynamodb.BatchGetI
 	requestItems := make(map[string]*awsdynamodb.KeysAndAttributes)
 
 	requestItems[issueTableName] = &awsdynamodb.KeysAndAttributes{
-		ProjectionExpression: aws.String("id,title,body,html_url"),
+		ProjectionExpression: aws.String("id,title,body,html_url,gh_user"),
 		Keys:                 keysArray,
 	}
 
