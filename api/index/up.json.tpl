@@ -19,7 +19,9 @@
     }
   },
   "cors": {
+    "enable": true,
     "allowed_origins": [
+      "https://contributor.ninja",
       "https://apiv2-index.contributor.ninja",
       "https://staging-apiv2-index.contributor.ninja",
       "http://localhost:3000"
