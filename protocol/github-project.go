@@ -26,7 +26,7 @@ func MakeGitHubProject(org, name string) GitHubProject {
 	id := fmt.Sprintf("%s/%s", org, name)
 
 	labels := []string{
-		"good first issue",
+		"good first issue", // default GitHub label
 	}
 
 	return GitHubProject{
@@ -42,4 +42,14 @@ func MakeGitHubProject(org, name string) GitHubProject {
 
 func (i GitHubProject) GetId() string {
 	return fmt.Sprintf("%s/%s", i.Org, i.Name)
+}
+
+func (i GitHubProject) HasLabel(label string) bool {
+	for _, l := range i.Labels {
+		if l == label {
+			return true
+		}
+	}
+
+	return false
 }
