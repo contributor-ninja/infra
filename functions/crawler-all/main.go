@@ -51,6 +51,7 @@ func crawlerAll() {
 			aws.String("name"),
 			aws.String("org"),
 			aws.String("labels"),
+			aws.String("language"),
 		},
 	}
 
@@ -92,6 +93,7 @@ func crawlerAll() {
 				*/
 
 				githubProject := protocol.MakeGitHubProject(*currentItem["org"].S, *currentItem["name"].S)
+				githubProject.Language = *currentItem["language"].S
 
 				log.Info("processing project " + githubProject.GetId())
 
@@ -123,10 +125,25 @@ func crawlerAll() {
 						log.WithError(putErr).Info("could not add in index")
 					}
 
-					log.WithField("title", issue.Title).Info("insered issue")
+					log.
+						WithField("title", issue.Title).
+						WithField("language", githubProject.Language).
+						Info("insered issue")
+
+					if githubProject.Language == "php" {
+						defaultphpIssueIdIndex.Ids = append(defaultphpIssueIdIndex.Ids, issue.Id)
+					}
 
 					if githubProject.Language == "js" {
 						defaultjsIssueIdIndex.Ids = append(defaultjsIssueIdIndex.Ids, issue.Id)
+					}
+
+					if githubProject.Language == "html-css" {
+						defaulthtmlIssueIdIndex.Ids = append(defaulthtmlIssueIdIndex.Ids, issue.Id)
+					}
+
+					if githubProject.Language == "ruby" {
+						defaultrubyIssueIdIndex.Ids = append(defaultrubyIssueIdIndex.Ids, issue.Id)
 					}
 				}
 
@@ -146,6 +163,7 @@ func crawlerAll() {
 
 	if putErr != nil {
 		log.
+			WithField("entries", len(defaultphpIssueIdIndex.Ids)).
 			WithField("name", "default-php").
 			WithError(putErr).
 			Info("put IndexIssueId failed")
@@ -156,6 +174,7 @@ func crawlerAll() {
 
 	if putErr != nil {
 		log.
+			WithField("entries", len(defaultjsIssueIdIndex.Ids)).
 			WithField("name", "default-js").
 			WithError(putErr).
 			Info("put IndexIssueId failed")
@@ -166,6 +185,7 @@ func crawlerAll() {
 
 	if putErr != nil {
 		log.
+			WithField("entries", len(defaulthtmlIssueIdIndex.Ids)).
 			WithField("name", "default-html").
 			WithError(putErr).
 			Info("put IndexIssueId failed")
@@ -176,6 +196,7 @@ func crawlerAll() {
 
 	if putErr != nil {
 		log.
+			WithField("entries", len(defaultrubyIssueIdIndex.Ids)).
 			WithField("name", "default-ruby").
 			WithError(putErr).
 			Info("put IndexIssueId failed")

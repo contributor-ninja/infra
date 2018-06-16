@@ -125,3 +125,33 @@ func MakePutItemIssueIdIndex(p protocol.IssueIdIndex) awsdynamodb.PutItemInput {
 		},
 	}
 }
+
+func MakePutGitHubProject(p protocol.GitHubProject) awsdynamodb.PutItemInput {
+	labels := make([]*string, 0)
+
+	for _, l := range p.Labels {
+		labels = append(labels, aws.String(l))
+	}
+
+	return awsdynamodb.PutItemInput{
+		TableName: protocol.GitHubProjectTable,
+
+		Item: map[string]*awsdynamodb.AttributeValue{
+			"id": &awsdynamodb.AttributeValue{
+				S: aws.String(p.Id),
+			},
+			"labels": &awsdynamodb.AttributeValue{
+				SS: labels,
+			},
+			"language": &awsdynamodb.AttributeValue{
+				S: aws.String(p.Language),
+			},
+			"name": &awsdynamodb.AttributeValue{
+				S: aws.String(p.Name),
+			},
+			"org": &awsdynamodb.AttributeValue{
+				S: aws.String(p.Org),
+			},
+		},
+	}
+}
