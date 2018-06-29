@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -20,14 +21,20 @@ type YAMLProject struct {
 	Label string `yaml:"label"`
 }
 
+var (
+	PROJECTS_DIR = flag.String("projects-dir", "./projects", "Specify the location of the projects repository")
+)
+
 func main() {
+	flag.Parse()
+
 	svc, dynamoerr := dynamodb.NewClient()
 
 	if dynamoerr != nil {
 		panic(dynamoerr)
 	}
 
-	files, err := ioutil.ReadDir("./projects")
+	files, err := ioutil.ReadDir(*PROJECTS_DIR)
 
 	if err != nil {
 		log.Fatal(err)
@@ -36,7 +43,7 @@ func main() {
 	for _, file := range files {
 		if path.Ext(file.Name()) == ".yml" {
 			fmt.Printf("----- %s -----\n", file.Name())
-			data, err := ioutil.ReadFile("./projects/" + file.Name())
+			data, err := ioutil.ReadFile(*PROJECTS_DIR + file.Name())
 
 			if err != nil {
 				panic(err)

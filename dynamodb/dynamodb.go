@@ -104,7 +104,7 @@ func MakeGetIssueIdIndexQuery(name string) awsdynamodb.QueryInput {
 	}
 }
 
-func MakePutItemIssueIdIndex(p protocol.IssueIdIndex) awsdynamodb.PutItemInput {
+func MakePutItemIssueIdIndex(p *protocol.IssueIdIndex) awsdynamodb.PutItemInput {
 
 	idNS := make([]*string, 0)
 

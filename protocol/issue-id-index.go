@@ -16,12 +16,22 @@ type IssueIdIndex struct {
 	LastUpdated string `json:"lastupdated"`
 }
 
-func MakeEmptyIssueIdIndex(name string) IssueIdIndex {
+func NewEmptyIssueIdIndex(name string) *IssueIdIndex {
 	LastUpdated := time.Now().Format("2006-01-02 15:04:05")
 
-	return IssueIdIndex{
+	return &IssueIdIndex{
 		Name:        name,
 		Ids:         make([]int, 0),
 		LastUpdated: LastUpdated,
 	}
+}
+
+func (i IssueIdIndex) HasIssueId(id int) bool {
+	for _, l := range i.Ids {
+		if l == id {
+			return true
+		}
+	}
+
+	return false
 }

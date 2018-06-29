@@ -20,10 +20,13 @@ const (
 )
 
 var (
-	defaultphpIssueIdIndex  = protocol.MakeEmptyIssueIdIndex("default-php")
-	defaultjsIssueIdIndex   = protocol.MakeEmptyIssueIdIndex("default-js")
-	defaulthtmlIssueIdIndex = protocol.MakeEmptyIssueIdIndex("default-html")
-	defaultrubyIssueIdIndex = protocol.MakeEmptyIssueIdIndex("default-ruby")
+	indices = map[string]*protocol.IssueIdIndex{
+		"php":      protocol.NewEmptyIssueIdIndex("default-php"),
+		"js":       protocol.NewEmptyIssueIdIndex("default-js"),
+		"html-css": protocol.NewEmptyIssueIdIndex("default-html"),
+		"ruby":     protocol.NewEmptyIssueIdIndex("default-ruby"),
+		"rust":     protocol.NewEmptyIssueIdIndex("default-rust"),
+	}
 )
 
 func init() {
@@ -130,20 +133,12 @@ func crawlerAll() {
 						WithField("language", githubProject.Language).
 						Info("insered issue")
 
-					if githubProject.Language == "php" {
-						defaultphpIssueIdIndex.Ids = append(defaultphpIssueIdIndex.Ids, issue.Id)
-					}
-
-					if githubProject.Language == "js" {
-						defaultjsIssueIdIndex.Ids = append(defaultjsIssueIdIndex.Ids, issue.Id)
-					}
-
-					if githubProject.Language == "html-css" {
-						defaulthtmlIssueIdIndex.Ids = append(defaulthtmlIssueIdIndex.Ids, issue.Id)
-					}
-
-					if githubProject.Language == "ruby" {
-						defaultrubyIssueIdIndex.Ids = append(defaultrubyIssueIdIndex.Ids, issue.Id)
+					if index, ok := indices[githubProject.Language]; ok {
+						if !index.HasIssueId(issue.Id) {
+							index.Ids = append(index.Ids, issue.Id)
+						}
+					} else {
+						log.Error("no index for language " + githubProject.Language)
 					}
 				}
 
@@ -158,47 +153,17 @@ func crawlerAll() {
 	/*
 	  Update IssueIndices
 	*/
-	inputQuery := dynamodb.MakePutItemIssueIdIndex(defaultphpIssueIdIndex)
-	_, putErr := svc.PutItem(&inputQuery)
+	for _, index := range indices {
+		inputQuery := dynamodb.MakePutItemIssueIdIndex(index)
+		_, putErr := svc.PutItem(&inputQuery)
 
-	if putErr != nil {
-		log.
-			WithField("entries", len(defaultphpIssueIdIndex.Ids)).
-			WithField("name", "default-php").
-			WithError(putErr).
-			Info("put IndexIssueId failed")
-	}
+		if putErr != nil {
+			log.
+				WithField("entries", len(index.Ids)).
+				WithField("name", index.Name).
+				WithError(putErr).
+				Info("put IndexIssueId failed")
+		}
 
-	inputQuery = dynamodb.MakePutItemIssueIdIndex(defaultjsIssueIdIndex)
-	_, putErr = svc.PutItem(&inputQuery)
-
-	if putErr != nil {
-		log.
-			WithField("entries", len(defaultjsIssueIdIndex.Ids)).
-			WithField("name", "default-js").
-			WithError(putErr).
-			Info("put IndexIssueId failed")
-	}
-
-	inputQuery = dynamodb.MakePutItemIssueIdIndex(defaulthtmlIssueIdIndex)
-	_, putErr = svc.PutItem(&inputQuery)
-
-	if putErr != nil {
-		log.
-			WithField("entries", len(defaulthtmlIssueIdIndex.Ids)).
-			WithField("name", "default-html").
-			WithError(putErr).
-			Info("put IndexIssueId failed")
-	}
-
-	inputQuery = dynamodb.MakePutItemIssueIdIndex(defaultrubyIssueIdIndex)
-	_, putErr = svc.PutItem(&inputQuery)
-
-	if putErr != nil {
-		log.
-			WithField("entries", len(defaultrubyIssueIdIndex.Ids)).
-			WithField("name", "default-ruby").
-			WithError(putErr).
-			Info("put IndexIssueId failed")
 	}
 }
