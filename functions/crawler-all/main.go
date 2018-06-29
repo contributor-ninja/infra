@@ -26,6 +26,8 @@ var (
 		"html-css": protocol.NewEmptyIssueIdIndex("default-html"),
 		"ruby":     protocol.NewEmptyIssueIdIndex("default-ruby"),
 		"rust":     protocol.NewEmptyIssueIdIndex("default-rust"),
+		"go":       protocol.NewEmptyIssueIdIndex("default-go"),
+		"scala":    protocol.NewEmptyIssueIdIndex("default-scala"),
 	}
 )
 
@@ -127,11 +129,6 @@ func crawlerAll() {
 					if putErr != nil {
 						log.WithError(putErr).Info("could not add in index")
 					}
-
-					log.
-						WithField("title", issue.Title).
-						WithField("language", githubProject.Language).
-						Info("insered issue")
 
 					if index, ok := indices[githubProject.Language]; ok {
 						if !index.HasIssueId(issue.Id) {
