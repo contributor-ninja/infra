@@ -119,6 +119,9 @@ func MakePutItemIssueIdIndex(p protocol.IssueIdIndex) awsdynamodb.PutItemInput {
 			"name": &awsdynamodb.AttributeValue{
 				S: aws.String(p.Name),
 			},
+			"lastupdated": &awsdynamodb.AttributeValue{
+				S: aws.String(p.LastUpdated),
+			},
 			"ids": &awsdynamodb.AttributeValue{
 				NS: idNS,
 			},
